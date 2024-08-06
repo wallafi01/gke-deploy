@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       #IMAGE_NAME: us-east1-docker.pkg.dev/gke-dev-430318/gke-artifact-repo1/myapp1:latest
-      IMAGE_NAME: us-east1-docker.pkg.dev/gke-dev-430318/gke-artifact-repo1/myapp1:${{ github.sha }}
+      IMAGE_NAME: us-east1-docker.pkg.dev/gke-dev-430318/gke-artifact-repo1/myapp1:v1
     steps:
       # Git checkout
       - name: Checkout
@@ -31,11 +31,11 @@ jobs:
 
       # Tag Docker image with GCR URI
       - name: Tag Docker image
-        run: docker tag $IMAGE_NAME $IMAGE_NAME
+        run: docker tag $IMAGE_NAME $IMAGE_NAME:${{ github.sha }}
 
       # Push Docker image to Container Registry
       - name: Push Docker image
-        run: docker push $IMAGE_NAME
+        run: docker push $IMAGE_NAME:${{ github.sha }}
 
       # Get GKE cluster credentials
       - name: Get GKE cluster credentials
@@ -48,7 +48,7 @@ jobs:
       # Update image in deployment.yaml
       - name: Update deployment image
         run: |
-           sed -i "s|image:.*|image: $IMAGE_NAME|g" 01-kubernetes-deployment.yaml
+           sed -i "s|image:.*|image: $IMAGE_NAME:${{ github.sha }} |g" 01-kubernetes-deployment.yaml
 
       # Deploy application to GKE
       - name: Deploy to GKE
