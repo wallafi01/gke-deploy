@@ -1,0 +1,57 @@
+name: GCP
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy Cloud Run and GKE
+    runs-on: ubuntu-latest
+    env:
+      #IMAGE_NAME: us-east1-docker.pkg.dev/gke-dev-430318/gke-artifact-repo1/myapp1:latest
+      IMAGE_NAME: us-east1-docker.pkg.dev/gke-dev-430318/gke-artifact-repo1/myapp1:${{ github.sha }}
+    steps:
+      # Git checkout
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # Login to GCP
+      - uses: google-github-actions/setup-gcloud@v0.2.0
+        with:
+          service_account_key: ${{ secrets.GCP_CREDENTIALS }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      # gcloud configure docker
+      - name: Configure Docker
+        run: gcloud auth configure-docker --quiet
+
+      # Build Docker image
+      - name: Build Docker image
+        run: docker build -t $IMAGE_NAME .
+
+      # Tag Docker image with GCR URI
+      - name: Tag Docker image
+        run: docker tag $IMAGE_NAME $IMAGE_NAME
+
+      # Push Docker image to Container Registry
+      - name: Push Docker image
+        run: docker push $IMAGE_NAME
+
+      # Get GKE cluster credentials
+      - name: Get GKE cluster credentials
+        run: |
+          gcloud container clusters get-credentials cluster-private \
+            --zone us-east1-c \
+            --project ${{ secrets.GCP_PROJECT_ID }}
+
+
+      # Update image in deployment.yaml
+      - name: Update deployment image
+        run: |
+           sed -i "s|image:.*|image: $IMAGE_NAME|g" 01-kubernetes-deployment.yaml
+
+      # Deploy application to GKE
+      - name: Deploy to GKE
+        run: |
+            kubectl apply -f 01-kubernetes-deployment.yaml
+            kubectl apply -f 02-kubernetes-loadBalancer-service.yaml
