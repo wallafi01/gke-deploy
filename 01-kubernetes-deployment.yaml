@@ -16,7 +16,7 @@ spec: # Dictionary
       containers: # List
         - name: myapp1-container
           #image: us-central1-docker.pkg.dev/kdaida123/myapps-repository/myapp1:d1c3b88
-          image: us-east1-docker.pkg.dev/gke-dev-430318/gke-artifact-repo1/myapp1:v1
+          image:  gcr.io/gke-dev-430318/myapp:latest
           ports: 
             - containerPort: 80  
     
