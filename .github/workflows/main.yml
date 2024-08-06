@@ -35,7 +35,7 @@ jobs:
 
       # Push Docker image to Container Registry
       - name: Push Docker image
-        run: docker push $IMAGE_NAME:${{ github.sha }}
+        run: docker push $IMAGE_NAME
 
       # Get GKE cluster credentials
       - name: Get GKE cluster credentials
