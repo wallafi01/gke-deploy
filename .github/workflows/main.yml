@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       #IMAGE_NAME: us-east1-docker.pkg.dev/gke-dev-430318/gke-artifact-repo1/myapp1:latest
-      IMAGE_NAME: us-east1-docker.pkg.dev/gke-dev-430318/gke-artifact-repo1/myapp1:v1
+      IMAGE_NAME: us-east1-docker.pkg.dev/gke-dev-430318/gke-artifact-repo1/myapp1
     steps:
       # Git checkout
       - name: Checkout
